@@ -6,8 +6,9 @@ package io.flutter.plugins.geofencing
 
 import android.content.Context
 import android.content.Intent
-import androidx.core.app.JobIntentService
+import android.os.Handler
 import android.util.Log
+import androidx.core.app.JobIntentService
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
@@ -57,9 +58,9 @@ class GeofencingService : MethodCallHandler, JobIntentService() {
             mContext = context
             if (sBackgroundFlutterView == null) {
                 val callbackHandle = context.getSharedPreferences(
-                        GeofencingPlugin.SHARED_PREFERENCES_KEY,
+                        FlutterGeofencingPlugin.SHARED_PREFERENCES_KEY,
                         Context.MODE_PRIVATE)
-                        .getLong(GeofencingPlugin.CALLBACK_DISPATCHER_HANDLE_KEY, 0)
+                        .getLong(FlutterGeofencingPlugin.CALLBACK_DISPATCHER_HANDLE_KEY, 0)
 
                 val callbackInfo = FlutterCallbackInformation.lookupCallbackInformation(callbackHandle)
                 if (callbackInfo == null) {
@@ -114,7 +115,7 @@ class GeofencingService : MethodCallHandler, JobIntentService() {
     }
 
     override fun onHandleWork(intent: Intent) {
-        val callbackHandle = intent.getLongExtra(GeofencingPlugin.CALLBACK_HANDLE_KEY, 0)
+        val callbackHandle = intent.getLongExtra(FlutterGeofencingPlugin.CALLBACK_HANDLE_KEY, 0)
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
         if (geofencingEvent.hasError()) {
             Log.e(TAG, "Geofencing error: ${geofencingEvent.errorCode}")
@@ -144,7 +145,7 @@ class GeofencingService : MethodCallHandler, JobIntentService() {
                 queue.add(geofenceUpdateList)
             } else {
                 // Callback method name is intentionally left blank.
-                mBackgroundChannel.invokeMethod("", geofenceUpdateList)
+                Handler(mContext.mainLooper).post { mBackgroundChannel.invokeMethod("", geofenceUpdateList) }
             }
         }
     }
