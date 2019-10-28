@@ -22,16 +22,15 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import org.json.JSONArray
-import org.json.JSONObject
 
-class GeofencingPlugin(context: Context, activity: Activity?) : MethodCallHandler {
+class FlutterGeofencingPlugin(context: Context, activity: Activity?) : MethodCallHandler {
     private val mContext = context
     private val mActivity = activity
     private val mGeofencingClient = LocationServices.getGeofencingClient(mContext)
 
     companion object {
         @JvmStatic
-        private val TAG = "GeofencingPlugin"
+        private val TAG = "FlutterGeofencingPlugin"
         @JvmStatic
         val SHARED_PREFERENCES_KEY = "geofencing_plugin_cache"
         @JvmStatic
@@ -49,7 +48,7 @@ class GeofencingPlugin(context: Context, activity: Activity?) : MethodCallHandle
 
         @JvmStatic
         fun registerWith(registrar: Registrar) {
-            val plugin = GeofencingPlugin(registrar.context(), registrar.activity())
+            val plugin = FlutterGeofencingPlugin(registrar.context(), registrar.activity())
             val channel = MethodChannel(registrar.messenger(), "plugins.flutter.io/geofencing_plugin")
             channel.setMethodCallHandler(plugin)
         }
